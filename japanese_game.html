@@ -34,8 +34,10 @@ function reload(){
   $("#card3_value").text(card3);
 };
 
-reload();
-$('button').click(reload);
+$(document).ready(function (){
+  reload();
+  $('button').click(reload);
+});
 </script>
 <style>
 .card {
