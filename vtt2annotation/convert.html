@@ -11,20 +11,35 @@
   <script src="vttregion-extended.js"></script>
   <script>
     function cue2annotation(cue){
-      alert(cue.toJSON());
-      return cue.start + '\n' + cue.end + '\n' + cue.text;
-    };
+      anno = {};
+      anno['type'] = "Annotation";
+      anno['motivation'] = "annotating";
+      anno['body'] = {};
+      anno['body']['type'] = "TextualBody";
+      anno['body']['value'] = cue.text;
+      anno['target'] = "#t=" + cue.startTime + ',' + cue.endTime;
+      return anno;
+    }
+    function printAnnotations(annotations){
+      var annoStrings = [];
+      annotations.forEach(function(anno){
+        annoStrings.push(JSON.stringify(anno, null, 2));
+      });
+      $('#output').html("[\n" + annoStrings.join(',\n') + "]");
+    }
     $(document).ready(function(){
       $('#url-button').click(function(){
         $('#output').empty();
         $.ajax($('#url-input').val())
           .done(function(data) {
             var parser = new WebVTT.Parser(window, WebVTT.StringDecoder());
+            var annotations = [];
             parser.oncue = function(cue) {
-              $('#output').append(cue2annotation(cue));
+              annotations.push(cue2annotation(cue));
             };
             parser.parse(data);
             parser.flush();
+            printAnnotations(annotations);
           })
           .fail(function(error){
             alert(`VTT URL Error - ${error.statusText}`);
@@ -40,6 +55,6 @@
           <button id="url-button" class="btn btn-secondary btn-lg" type="submit">Submit</button>
         </span>
   </div>
-  <div id="output"></div>
+  <pre id="output"></pre>
 </body>
 </html>
