@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>VTT to Web Annotation Converter</title>
+  <script src="https://code.jquery.com/jquery.min.js"></script>
+  <script src="vtt.js"></script>
+  <script src="vttcue.js"></script>
+  <script src="vttcue-extended.js"></script>
+  <script src="vttregion.js"></script>
+  <script src="vttregion-extended.js"></script>
+  <script>
+    function cue2annotation(cue){
+      alert(cue.toJSON());
+      return cue.start + '\n' + cue.end + '\n' + cue.text;
+    };
+    $(document).ready(function(){
+      $('#url-button').click(function(){
+        $('#output').empty();
+        $.ajax($('#url-input').val())
+          .done(function(data) {
+            var parser = new WebVTT.Parser(window, WebVTT.StringDecoder());
+            parser.oncue = function(cue) {
+              $('#output').append(cue2annotation(cue));
+            };
+            parser.parse(data);
+            parser.flush();
+          })
+          .fail(function(error){
+            alert(`VTT URL Error - ${error.statusText}`);
+        });
+      }); 
+    });
+  </script>
+</head>
+<body>
+  <div class="input-group">
+        <input id="url-input" type="text" class="form-control form-control-lg" placeholder="Enter a VTT URL..." aria-label="Enter a VTT URL...">
+        <span class="input-group-btn">
+          <button id="url-button" class="btn btn-secondary btn-lg" type="submit">Submit</button>
+        </span>
+  </div>
+  <div id="output"></div>
+</body>
+</html>
